@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  const socket = io("http://localhost:3000");
+
+  // Send "ping" to server
+  socket.emit("ping", "Hello from client!");
+
+  // Listen for "pong" replies
+  socket.on("pong", (data) => {
+    console.log("Server replied:", data); // Logs: "Server reply: Hello from client!"
+  });
+</script>

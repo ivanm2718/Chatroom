@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.io Chat</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
+    #messages { border: 1px solid #ddd; height: 300px; overflow-y: scroll; padding: 10px; }
+    input, button { padding: 8px; margin-top: 10px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Simple Chat</h1>
+  <div id="messages"></div>
+  <input type="text" id="username" placeholder="Your name">
+  <input type="text" id="message" placeholder="Type a message...">
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    // Connect to the server
+    const socket = io("http://localhost:3000");
+    const messagesDiv = document.getElementById('messages');
+
+    // Display received messages
+    socket.on('all_messages', (msgs) => {
+      msgs.forEach(msg => displayMessage(msg));
+    });
+
+    socket.on('new_message', (msg) => {
+      displayMessage(msg);
+    });
+
+    // Send a message
+    function sendMessage() {
+      const text = document.getElementById('message').value;
+      const user = document.getElementById('username').value || "Anonymous";
+      if (text.trim()) {
+        socket.emit('send_message', {
+          user: user,
+          text: text,
+          time: new Date().toLocaleTimeString()
+        });
+        document.getElementById('message').value = "";
+      }
+    }
+
+    // Show messages in the chat
+    function displayMessage(msg) {
+      messagesDiv.innerHTML += `<p><strong>${msg.user}</strong> (${msg.time}): ${msg.text}</p>`;
+      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
+    }
+
+    // Send on "Enter" key
+    document.getElementById('message').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>
